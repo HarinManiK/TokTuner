@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use TokTuner in your research or project, please cite it as below."
+authors:
+  - name: "TokTuner contributors"
+title: "TokTuner: Analytical llama.cpp Flag & Memory Layout Compiler"
+version: 0.1.0
+date-released: 2026-08-30
+url: "https://github.com/HarinManiK/TokTuner"
+repository-code: "https://github.com/HarinManiK/TokTuner"
+license: MIT
+keywords:
+  - llm
+  - llama-cpp
+  - gguf
+  - vram-optimizer
+  - knapsack
+  - cuda
+  - memory-management

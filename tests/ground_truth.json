@@ -1,0 +1,192 @@
+{
+  "_comment": [
+    "Measurements taken on the development machine (RTX 5070 Ti Laptop 12 GB,",
+    "Ryzen AI 9 HX 370, 31 GB RAM) with llama.cpp build 10675.",
+    "vram_gb is the nvidia-smi delta from idle with the model loaded.",
+    "tok_s is steady-state generation throughput, averaged over the final",
+    "3 of 10 runs with distinct prompts (see harness for why that matters).",
+    "",
+    "These exist so the analytical model can be checked against reality",
+    "rather than against itself. A memory model that has never been",
+    "confronted with measurements is a guess with extra steps."
+  ],
+  "machine": {
+    "gpu": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+    "vram_total_mib": 12227,
+    "ram_total_mib": 31864,
+    "cpu_threads": 24
+  },
+  "runs": [
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 30,
+      "vram_gb": 8.43,
+      "tok_s": 52.42,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 8192,
+      "kv": "f16",
+      "ncmoe": 30,
+      "vram_gb": 8.51,
+      "tok_s": 48.15,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 16384,
+      "kv": "f16",
+      "ncmoe": 30,
+      "vram_gb": 8.68,
+      "tok_s": 50.18,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 32768,
+      "kv": "f16",
+      "ncmoe": 30,
+      "vram_gb": 9.01,
+      "tok_s": 49.26,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 65536,
+      "kv": "f16",
+      "ncmoe": 30,
+      "vram_gb": 9.66,
+      "tok_s": 49.17,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 131072,
+      "kv": "q8_0",
+      "ncmoe": 30,
+      "vram_gb": 9.86,
+      "tok_s": 45.91,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 262144,
+      "kv": "q8_0",
+      "ncmoe": 30,
+      "vram_gb": 11.56,
+      "tok_s": 50.04,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 26,
+      "vram_gb": 10.89,
+      "tok_s": 45.15,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 28,
+      "vram_gb": 9.66,
+      "tok_s": 41.09,
+      "method": "steady10"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 29,
+      "vram_gb": 9.05,
+      "tok_s": 41.17,
+      "method": "warm5"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 31,
+      "vram_gb": 7.82,
+      "tok_s": 33.17,
+      "method": "warm5"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 32,
+      "vram_gb": 7.2,
+      "tok_s": 35.6,
+      "method": "warm5"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K",
+      "n_ctx": 4096,
+      "kv": "f16",
+      "ncmoe": 40,
+      "vram_gb": 2.28,
+      "tok_s": 28.82,
+      "method": "warm5"
+    }
+  ],
+  "known_effects": {
+    "_comment": "Findings a naive tuner would get wrong. Regression targets.",
+    "ncmoe_is_a_sharp_peak": {
+      "detail": "29 -> 41.17, 30 -> 51.13, 31 -> 33.17 at 4k. A 2-unit window swings 55%.",
+      "implication": "Bayesian/TPE search assuming a smooth surface can converge into the wrong basin. Search must sample the neighbourhood of any candidate optimum."
+    },
+    "warmup_is_load_bearing": {
+      "detail": "Identical config measured 38.39 and 51.04 depending on how many generations preceded it. Steady state needed ~7 runs on a 26 GB MoE.",
+      "implication": "Fixed warmup counts are wrong in both directions. Detect convergence."
+    },
+    "ngram_memorises_repeated_prompts": {
+      "detail": "spec-type ngram-mod scored 176 tok/s by replaying its own output when the same prompt was reused. Dropped to parity with distinct prompts.",
+      "implication": "Every repetition must use a distinct prompt."
+    },
+    "cross_run_contamination": {
+      "detail": "20 GB of experts needed longer than 4s for the OS to reclaim; the next config measured low.",
+      "implication": "Gate each trial on a free-memory precondition, not a fixed sleep."
+    },
+    "silent_vram_spill": {
+      "detail": "llama.cpp places KV in system RAM when VRAM is short. No error, roughly half speed. Observed at 48k/f16 (17.75 tok/s), 96k/q8 (15.61), 131k/q4 with ub512 (7.27).",
+      "implication": "Signature is VRAM pinned at cap + RAM climbing + throughput collapse. Such configs must be rejected, not recorded."
+    },
+    "published_advice_was_wrong_here": {
+      "detail": "--spec-draft-p-min 0.60-0.75 is widely recommended for bandwidth-constrained setups; it cost 3-4 tok/s at every value tested. The published n-max 16 / p-min 0.8 recipe was the worst speculative config measured.",
+      "implication": "Heuristics from documentation are hypotheses, not defaults."
+    }
+  },
+  "model_specs": {
+    "Qwen3.6-35B-A3B-Abliterated-Heretic-Q6_K": {
+      "_comment": [
+        "Properties read from the real file with toktuner.gguf and",
+        "toktuner.tensors while it was on disk. Embedded so the",
+        "validation runs anywhere, not only where the model happens",
+        "to exist."
+      ],
+      "arch": "qwen35moe",
+      "file_bytes": 28518000000,
+      "n_layer": 40,
+      "n_expert": 256,
+      "n_expert_used": 8,
+      "n_head": 16,
+      "n_head_kv": 2,
+      "key_length": 256,
+      "value_length": 256,
+      "full_attention_interval": 4,
+      "ssm_state_size": 128,
+      "ssm_inner_size": 4096,
+      "ssm_conv_kernel": 4,
+      "n_ctx_train": 262144,
+      "always_bytes": 1653000000,
+      "movable_bytes": 26865000000,
+      "movable_layers": 40
+    }
+  }
+}

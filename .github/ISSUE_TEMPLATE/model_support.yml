@@ -1,0 +1,35 @@
+name: New Architecture / Model Support
+description: Request support or tuning calibration for a newly released model architecture.
+title: "[Arch]: Support for "
+labels: ["enhancement", "architecture"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Requesting support or verified calibration for a new model architecture or quantization format.
+
+  - type: input
+    id: architecture_name
+    attributes:
+      label: Model Architecture
+      description: What architecture family does this model use in GGUF? (e.g. `gemma3`, `deepseek3`, `qwen35`)
+      placeholder: e.g. gpt-neox, mamba2, dbrx
+    validations:
+      required: true
+
+  - type: input
+    id: model_link
+    attributes:
+      label: Hugging Face or Model Link
+      description: Link to the model repository or GGUF files.
+      placeholder: https://huggingface.co/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Architectural Peculiarities / KV Cache Details
+      description: Any known details about attention heads, latent compression, sliding windows, or expert count?
+    validations:
+      required: false

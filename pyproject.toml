@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toktuner"
+version = "0.1.0"
+description = "Find the llama.cpp flags that are actually fastest on your machine, without recommending a configuration that wrecks it."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+# Deliberately empty. Every dependency is a thing that can break on someone
+# else's machine, and none of what this tool does needs one.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/HarinManiK/TokTuner"
+Documentation = "https://github.com/HarinManiK/TokTuner/blob/main/ARCHITECTURE.md"
+Repository = "https://github.com/HarinManiK/TokTuner"
+Issues = "https://github.com/HarinManiK/TokTuner/issues"
+Changelog = "https://github.com/HarinManiK/TokTuner/blob/main/CHANGELOG.md"
+
+[project.scripts]
+toktuner = "toktuner.cli:main"
+
+[tool.setuptools]
+packages = ["toktuner"]
